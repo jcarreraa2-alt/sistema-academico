@@ -20,7 +20,8 @@ struct Estudiante {
     vector<NotaCurso> notas;
 };
 
-void mostrarMenuReportes(vector<Estudiante>& estudiantes);
+// Declaración de funciones auxiliares y de reportes
+int buscarEstudiante(const vector<Estudiante>& estudiantes, const string& carneBuscado);
 void generarReportePromedioEstudiante(const vector<Estudiante>& estudiantes);
 void generarReportePromedioCurso(const vector<Estudiante>& estudiantes);
 void generarReporteAprobadosReprobados(const vector<Estudiante>& estudiantes);
@@ -46,7 +47,15 @@ int main() {
         cout << "6. Guardar datos actuales en archivo\n";
         cout << "7. Salir\n";
         cout << "Seleccione una opcion: ";
-        cin >> opcion;
+
+        // Validación robusta de la entrada del menú (evita bucle infinito si ingresan letras)
+        if (!(cin >> opcion)) {
+            cout << "Entrada invalida. Por favor ingrese un numero.\n";
+            cin.clear();
+            cin.ignore(10000, '\n');
+            opcion = 0;
+            continue;
+        }
 
         switch (opcion) {
             case 1:
@@ -79,6 +88,16 @@ int main() {
     return 0;
 }
 
+// Función auxiliar para buscar un estudiante y retornar su índice (o -1 si no existe)
+int buscarEstudiante(const vector<Estudiante>& estudiantes, const string& carneBuscado) {
+    for (size_t i = 0; i < estudiantes.size(); i++) {
+        if (estudiantes[i].carne == carneBuscado) {
+            return static_cast<int>(i);
+        }
+    }
+    return -1;
+}
+
 void generarReportePromedioEstudiante(const vector<Estudiante>& estudiantes) {
     cout << "\n--- REPORTE: PROMEDIO POR ESTUDIANTE ---\n";
     if (estudiantes.empty()) {
@@ -87,12 +106,15 @@ void generarReportePromedioEstudiante(const vector<Estudiante>& estudiantes) {
     }
 
     for (const auto& est : estudiantes) {
+        if (est.notas.empty()) {
+            cout << "Carne: " << est.carne << " | Nombre: " << est.nombre << " | Sin notas registradas.\n";
+            continue;
+        }
         float suma = 0;
-        int totalNotas = est.notas.size();
         for (const auto& nota : est.notas) {
             suma += nota.calificacion;
         }
-        float promedio = (totalNotas > 0) ? (suma / totalNotas) : 0.0f;
+        float promedio = suma / est.notas.size();
         cout << "Carne: " << est.carne << " | Nombre: " << est.nombre << " | Promedio: " << fixed << setprecision(2) << promedio << "\n";
     }
 }
@@ -129,7 +151,8 @@ void generarReporteAprobadosReprobados(const vector<Estudiante>& estudiantes) {
 
     for (const auto& est : estudiantes) {
         for (const auto& nota : est.notas) {
-            if (nota.calificacion >= 61.0) {
+            // Se utiliza directamente el campo booleano 'aprobado'
+            if (nota.aprobado) {
                 aprobados++;
             } else {
                 reprobados++;
@@ -152,7 +175,7 @@ void generarReporteMejorEstudiante(const vector<Estudiante>& estudiantes) {
     float mayorPromedio = -1.0f;
 
     for (const auto& est : estudiantes) {
-        if (est.notas.empty()) continue;
+        if (est.notas.empty()) continue; // Evita división por cero
         float suma = 0;
         for (const auto& nota : est.notas) {
             suma += nota.calificacion;
@@ -177,24 +200,25 @@ void generarExpedientePorCarne(const vector<Estudiante>& estudiantes) {
     cout << "Ingrese el numero de carne del estudiante: ";
     cin >> carneBuscado;
 
-    bool encontrado = false;
-    for (const auto& est : estudiantes) {
-        if (est.carne == carneBuscado) {
-            encontrado = true;
-            cout << "\n========================================\n";
-            cout << "EXPEDIENTE ACADEMICO\n";
-            cout << "Carne: " << est.carne << "\n";
-            cout << "Nombre: " << est.nombre << "\n";
-            cout << "Historial de Cursos:\n";
+    int index = buscarEstudiante(estudiantes, carneBuscado);
+    if (index != -1) {
+        const auto& est = estudiantes[index];
+        cout << "\n========================================\n";
+        cout << "EXPEDIENTE ACADEMICO\n";
+        cout << "Carne: " << est.carne << "\n";
+        cout << "Nombre: " << est.nombre << "\n";
+        cout << "Historial de Cursos:\n";
+        if (est.notas.empty()) {
+            cout << " - El estudiante no tiene cursos asignados.\n";
+        } else {
             for (const auto& nota : est.notas) {
-                cout << " - [" << nota.codigoCurso << "] " << nota.nombreCurso << " | Nota: " << nota.calificacion << " | " << (nota.calificacion >= 61 ? "Aprobado" : "Reprobado") << "\n";
+                cout << " - [" << nota.codigoCurso << "] " << nota.nombreCurso 
+                     << " | Nota: " << fixed << setprecision(2) << nota.calificacion 
+                     << " | " << (nota.aprobado ? "Aprobado" : "Reprobado") << "\n";
             }
-            cout << "========================================\n";
-            break;
         }
-    }
-
-    if (!encontrado) {
+        cout << "========================================\n";
+    } else {
         cout << "Estudiante con carne " << carneBuscado << " no encontrado.\n";
     }
 }
@@ -226,7 +250,7 @@ void cargarDatos(vector<Estudiante>& estudiantes, const string& nombreArchivo) {
     }
 
     int totalEstudiantes;
-    archivo >> totalEstudiantes;
+    if (!(archivo >> totalEstudiantes)) return;
     estudiantes.clear();
 
     for (int i = 0; i < totalEstudiantes; i++) {
@@ -243,7 +267,7 @@ void cargarDatos(vector<Estudiante>& estudiantes, const string& nombreArchivo) {
             getline(archivo, nota.codigoCurso);
             getline(archivo, nota.nombreCurso);
             archivo >> nota.calificacion;
-            nota.aprobado = (nota.calificacion >= 61.0f);
+            nota.aprobado = (nota.calificacion >= 61.0f); // Se define el estado aprobado al cargar
             est.notas.push_back(nota);
         }
         estudiantes.push_back(est);

@@ -1,0 +1,24 @@
+# Ejecutables
+*.exe
+*.out
+sistema_academico
+
+# Archivos temporales y del compilador
+*.o
+*.obj
+*.d
+
+# Carpetas de IDEs
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Datos generados por el programa (si guardan archivos)
+*.dat
+*.txt
+datos/

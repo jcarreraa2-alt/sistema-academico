@@ -1,4 +1,3 @@
-NombreRolJoseph Lizardo Carrera AriasDesarrolladorWilliam Alexander Polanco CifuentesDesarrolladorSteven Josué Jaimes PérezDesarrollador
 # Sistema Académico
 
 Programa de consola en **C++** para gestionar estudiantes, cursos y notas.  
@@ -33,7 +32,7 @@ sistema_academico/
 ├── estudiantes.cpp
 ├── cursos_notas.cpp
 ├── procesamiento.cpp
-└── reportes.cpptext
+└── reportes.cpp 
 
 ---
 
@@ -52,11 +51,24 @@ sistema_academico/
 cd sistema_academico
 make
 ./sistema_academico
-
 cd sistema_academico
 g++ -std=c++11 -O2 -Wall -o sistema_academico \
     src/main.cpp src/utilidades.cpp src/estudiantes.cpp \
     src/cursos_notas.cpp src/procesamiento.cpp src/reportes.cpp
 
 ./sistema_academico
-make clean
+make clean                                                                                                                                
+integrantes 
+
+NombreRolJoseph Lizardo Carrera AriasDesarrolladorWilliam Alexander Polanco CifuentesDesarrolladorSteven Josué Jaimes PérezDesarrollador
+
+
+5. Antes de hacer commit, haz clic en la pestaña **Preview** (arriba del editor) para verificar que se vea bien.
+6. Si se ve correcto, haz **Commit changes**.
+
+---
+
+**Consejo:** Copia el texto de arriba usando el botón de copiar del mensaje (si aparece) o selecciona todo con cuidado. No copies desde el mensaje anterior que estaba roto.
+
+Cuando termines, dime si ya se ve bien en el Preview.
+
